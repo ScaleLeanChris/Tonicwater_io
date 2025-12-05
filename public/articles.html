@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gin & Tonic Guides | TonicWater.io</title>
+  <meta name="description" content="Expert guides on gin and tonic pairings, cocktail recipes, and tonic water recommendations. Find your perfect G&T combination.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Gin & Tonic Guides | TonicWater.io">
+  <meta property="og:description" content="Expert guides on gin and tonic pairings, cocktail recipes, and tonic water recommendations.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tonicwater.io/articles">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div x-data="articlesApp()" x-init="init()" class="min-h-screen">
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50">
+      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center">
+            <span class="text-xl">🍸</span>
+          </div>
+          <span class="text-xl font-semibold">TonicWater.io</span>
+        </a>
+        <nav class="flex items-center gap-6">
+          <a href="/" class="text-gray-400 hover:text-white transition-colors">Pairing Tool</a>
+          <a href="/articles" class="text-white font-medium">Guides</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="py-16 px-4">
+      <div class="container mx-auto text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+          Gin & Tonic Guides
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+          Expert insights on gin varieties, tonic pairings, and cocktail craftsmanship. Elevate your G&T experience.
+        </p>
+      </div>
+    </section>
+
+    <!-- Articles Grid -->
+    <section class="pb-20 px-4">
+      <div class="container mx-auto">
+        <!-- Loading State -->
+        <div x-show="loading" class="flex justify-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-400"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && articles.length === 0" class="text-center py-20">
+          <div class="text-6xl mb-4">📝</div>
+          <h2 class="text-2xl font-semibold mb-2">Coming Soon</h2>
+          <p class="text-gray-400">Our expert guides are being crafted. Check back soon!</p>
+        </div>
+
+        <!-- Articles Grid -->
+        <div x-show="!loading && articles.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <template x-for="article in articles" :key="article.id">
+            <a :href="'/article/' + article.slug" class="article-card glass rounded-2xl overflow-hidden transition-all duration-300">
+              <!-- Featured Image -->
+              <div class="aspect-video bg-gradient-to-br from-emerald-900/50 to-cyan-900/50 relative overflow-hidden">
+                <img
+                  x-show="article.imageUrl && !article.imageUrl.startsWith('/')"
+                  :src="article.imageUrl"
+                  :alt="article.imageAlt"
+                  class="w-full h-full object-cover"
+                >
+                <div x-show="!article.imageUrl || article.imageUrl.startsWith('/')" class="absolute inset-0 flex items-center justify-center text-6xl">
+                  🍸
+                </div>
+              </div>
+
+              <!-- Content -->
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-medium" x-text="article.primaryKeyword"></span>
+                </div>
+                <h2 class="text-xl font-semibold mb-3 line-clamp-2" x-text="article.title"></h2>
+                <p class="text-gray-400 text-sm line-clamp-3" x-text="article.metaDescription"></p>
+                <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+                  <span x-text="formatDate(article.publishedAt || article.createdAt)"></span>
+                  <span class="text-emerald-400">Read More →</span>
+                </div>
+              </div>
+            </a>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass py-8 px-4">
+      <div class="container mx-auto text-center text-gray-400">
+        <p>&copy; 2024 TonicWater.io - Your Guide to Perfect Gin & Tonic Pairings</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function articlesApp() {
+      return {
+        articles: [],
+        loading: true,
+
+        async init() {
+          try {
+            const res = await fetch('/api/articles');
+            if (res.ok) {
+              this.articles = await res.json();
+            }
+          } catch (e) {
+            console.error('Failed to load articles:', e);
+          } finally {
+            this.loading = false;
+          }
+        },
+
+        formatDate(dateStr) {
+          if (!dateStr) return '';
+          const date = new Date(dateStr);
+          return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

@@ -174,7 +174,21 @@
         </div>
     </div>
 
-    <div x-data="tonicApp()" x-init="init()" class="relative z-10 w-full max-w-3xl px-6 pt-16 pb-10 flex flex-col items-center">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <span class="text-2xl">🍸</span>
+                <span class="font-bold text-lg glow-text">TONICWATER.IO</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="/" class="text-cyan-400 font-medium text-sm hover:text-white transition-colors">Pairing Tool</a>
+                <a href="/articles" class="text-gray-400 text-sm hover:text-cyan-400 transition-colors">Guides</a>
+            </div>
+        </div>
+    </nav>
+
+    <div x-data="tonicApp()" x-init="init()" class="relative z-10 w-full max-w-3xl px-6 pt-24 pb-10 flex flex-col items-center">
 
         <header class="text-center mb-12 fade-in">
             <div class="mb-4">
@@ -463,7 +477,26 @@
         </div>
     </div>
 
-    <footer class="absolute bottom-4 text-center w-full mono text-[10px] text-gray-600">
+    <!-- Featured Guides Section -->
+    <section x-data="guidesWidget()" x-init="loadGuides()" class="relative z-10 w-full max-w-4xl mx-auto px-6 pb-16">
+        <div x-show="guides.length > 0" class="fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold glow-text">Latest G&T Guides</h2>
+                <a href="/articles" class="text-cyan-400 text-sm hover:text-white transition-colors mono">View All →</a>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <template x-for="guide in guides.slice(0, 3)" :key="guide.id">
+                    <a :href="'/article/' + guide.slug" class="glass-card rounded-xl p-5 block">
+                        <span class="inline-block px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded text-xs mono mb-3" x-text="guide.primaryKeyword"></span>
+                        <h3 class="font-semibold mb-2 line-clamp-2" x-text="guide.title"></h3>
+                        <p class="text-gray-400 text-sm line-clamp-2" x-text="guide.metaDescription"></p>
+                    </a>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative z-10 text-center w-full py-6 mono text-[10px] text-gray-600">
         SYSTEM: TONICWATER.IO // VER 3.0 // POWERED BY THE ALGORITHM
     </footer>
 
@@ -480,6 +513,23 @@
             b.style.animationDuration = Math.random() * 10 + 15 + 's';
             b.style.animationDelay = Math.random() * 10 + 's';
             container.appendChild(b);
+        }
+
+        // Guides widget for homepage
+        function guidesWidget() {
+            return {
+                guides: [],
+                async loadGuides() {
+                    try {
+                        const res = await fetch('/api/articles');
+                        if (res.ok) {
+                            this.guides = await res.json();
+                        }
+                    } catch (e) {
+                        console.error('Failed to load guides:', e);
+                    }
+                }
+            };
         }
 
         function tonicApp() {

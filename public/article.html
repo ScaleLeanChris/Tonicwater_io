@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title x-data x-text="document.title">Loading... | TonicWater.io</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Article Content Styling */
+    .article-content {
+      font-size: 1.125rem;
+      line-height: 1.8;
+    }
+
+    .article-content h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #34d399, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .article-content h2 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      color: #f1f5f9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.5rem;
+    }
+
+    .article-content h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: #e2e8f0;
+    }
+
+    .article-content p {
+      margin-bottom: 1.5rem;
+      color: #cbd5e1;
+    }
+
+    .article-content ul, .article-content ol {
+      margin-bottom: 1.5rem;
+      padding-left: 1.5rem;
+      color: #cbd5e1;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content ul li {
+      list-style-type: disc;
+    }
+
+    .article-content ol li {
+      list-style-type: decimal;
+    }
+
+    .article-content blockquote {
+      border-left: 4px solid #34d399;
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: #94a3b8;
+    }
+
+    .article-content a {
+      color: #34d399;
+      text-decoration: underline;
+    }
+
+    .article-content a:hover {
+      color: #22d3ee;
+    }
+
+    .article-content strong {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .article-content code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    .article-content pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .article-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div x-data="articleApp()" x-init="init()">
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50">
+      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center">
+            <span class="text-xl">🍸</span>
+          </div>
+          <span class="text-xl font-semibold">TonicWater.io</span>
+        </a>
+        <nav class="flex items-center gap-6">
+          <a href="/" class="text-gray-400 hover:text-white transition-colors">Pairing Tool</a>
+          <a href="/articles" class="text-gray-400 hover:text-white transition-colors">Guides</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div x-show="loading" class="flex justify-center items-center min-h-[60vh]">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-400"></div>
+    </div>
+
+    <!-- Error State -->
+    <div x-show="!loading && error" class="container mx-auto px-4 py-20 text-center">
+      <div class="text-6xl mb-4">😢</div>
+      <h1 class="text-3xl font-bold mb-4">Article Not Found</h1>
+      <p class="text-gray-400 mb-8">The article you're looking for doesn't exist or has been removed.</p>
+      <a href="/articles" class="inline-block px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+        Browse All Guides
+      </a>
+    </div>
+
+    <!-- Article Content -->
+    <article x-show="!loading && !error && article" class="pb-20">
+      <!-- Hero Section -->
+      <div class="relative">
+        <!-- Featured Image -->
+        <div class="h-[50vh] relative overflow-hidden">
+          <template x-if="article.imageUrl && !article.imageUrl.startsWith('/')">
+            <img
+              :src="article.imageUrl"
+              :alt="article.imageAlt"
+              class="w-full h-full object-cover"
+            >
+          </template>
+          <template x-if="!article.imageUrl || article.imageUrl.startsWith('/')">
+            <div class="w-full h-full bg-gradient-to-br from-emerald-900/50 to-cyan-900/50 flex items-center justify-center">
+              <span class="text-9xl">🍸</span>
+            </div>
+          </template>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
+        </div>
+
+        <!-- Title Overlay -->
+        <div class="absolute bottom-0 left-0 right-0 p-8">
+          <div class="container mx-auto max-w-4xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-3 py-1 bg-emerald-500/30 text-emerald-400 rounded-full text-sm font-medium" x-text="article.primaryKeyword"></span>
+              <span class="text-gray-400 text-sm" x-text="formatDate(article.publishedAt || article.createdAt)"></span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold leading-tight" x-text="article.title"></h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article Body -->
+      <div class="container mx-auto max-w-4xl px-4 py-12">
+        <!-- Meta Description -->
+        <div class="glass rounded-xl p-6 mb-12 border-l-4 border-emerald-400">
+          <p class="text-lg text-gray-300 italic" x-text="article.metaDescription"></p>
+        </div>
+
+        <!-- Content -->
+        <div class="article-content" x-html="renderedContent"></div>
+
+        <!-- Tags -->
+        <div x-show="article.secondaryKeywords && article.secondaryKeywords.length > 0" class="mt-12 pt-8 border-t border-white/10">
+          <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-4">Related Topics</h3>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="keyword in article.secondaryKeywords" :key="keyword">
+              <span class="px-3 py-1 bg-white/5 text-gray-400 rounded-full text-sm" x-text="keyword"></span>
+            </template>
+          </div>
+        </div>
+
+        <!-- Back Link -->
+        <div class="mt-12 pt-8 border-t border-white/10">
+          <a href="/articles" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to All Guides
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Schema Markup -->
+    <template x-if="article && article.schemaMarkup">
+      <script type="application/ld+json" x-text="JSON.stringify(article.schemaMarkup)"></script>
+    </template>
+
+    <!-- Footer -->
+    <footer class="glass py-8 px-4">
+      <div class="container mx-auto text-center text-gray-400">
+        <p>&copy; 2024 TonicWater.io - Your Guide to Perfect Gin & Tonic Pairings</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function articleApp() {
+      return {
+        article: null,
+        loading: true,
+        error: false,
+        renderedContent: '',
+
+        async init() {
+          // Get slug from URL path
+          const pathParts = window.location.pathname.split('/');
+          const slug = pathParts[pathParts.length - 1];
+
+          if (!slug) {
+            this.error = true;
+            this.loading = false;
+            return;
+          }
+
+          try {
+            const res = await fetch('/api/articles/' + encodeURIComponent(slug));
+            if (!res.ok) {
+              this.error = true;
+              this.loading = false;
+              return;
+            }
+
+            this.article = await res.json();
+
+            // Update page title and meta
+            document.title = this.article.title + ' | TonicWater.io';
+
+            // Update meta description
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+              metaDesc = document.createElement('meta');
+              metaDesc.name = 'description';
+              document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = this.article.metaDescription;
+
+            // Render markdown content
+            if (typeof marked !== 'undefined') {
+              this.renderedContent = marked.parse(this.article.content);
+            } else {
+              this.renderedContent = this.article.content;
+            }
+
+          } catch (e) {
+            console.error('Failed to load article:', e);
+            this.error = true;
+          } finally {
+            this.loading = false;
+          }
+        },
+
+        formatDate(dateStr) {
+          if (!dateStr) return '';
+          const date = new Date(dateStr);
+          return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

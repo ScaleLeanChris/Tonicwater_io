@@ -1,0 +1,30 @@
+name = "tonicwater-seo-agent"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+account_id = "eddf7805053d5e32afd090c3ec22126c"
+
+# Cron trigger for daily article generation (9 AM UTC)
+[triggers]
+crons = ["0 9 * * *"]
+
+# Durable Objects for article storage
+[[durable_objects.bindings]]
+name = "ARTICLES"
+class_name = "ArticlesDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ArticlesDO"]
+
+# KV for article content cache
+[[kv_namespaces]]
+binding = "ARTICLE_CACHE"
+id = "e94832dab5a8450ea9971c0fbf198f02"
+
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets (set via wrangler secret put):
+# - OPENROUTER_API_KEY
+# - GEMINI_API_KEY
+# - ADMIN_PASSWORD
