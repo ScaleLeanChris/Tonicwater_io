@@ -1,0 +1,22 @@
+name = "tonicwater-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+account_id = "eddf7805053d5e32afd090c3ec22126c"
+
+# Durable Objects
+[[durable_objects.bindings]]
+name = "GIN_DATA"
+class_name = "GinDataDO"
+
+# Migrations for Durable Objects
+[[migrations]]
+tag = "v1"
+new_classes = ["GinDataDO"]
+
+# KV Namespace
+[[kv_namespaces]]
+binding = "GIN_CACHE"
+id = "e59b19fdb8914815a0171753023b4be8"
+
+[vars]
+ENVIRONMENT = "production"

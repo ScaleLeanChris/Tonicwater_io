@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TonicWater.io | The Algorithm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff006e;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #050510 0%, #0a0a2e 50%, #050510 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Enhanced Bubble Animation */
+        .bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 243, 255, 0.2), rgba(0, 243, 255, 0.05));
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise 15s infinite ease-in;
+            z-index: 0;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-120vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+
+        /* Enhanced Glassmorphism */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 243, 255, 0.5);
+            box-shadow: 0 12px 48px 0 rgba(0, 243, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5),
+                         0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .glow-border {
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3),
+                        inset 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        /* Loading animation */
+        .spinner {
+            border: 3px solid rgba(0, 243, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--neon-cyan);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fade in animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 243, 255, 0.5);
+        }
+
+        [x-cloak] { display: none !important; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00f3ff 0%, #ff006e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Heart animation */
+        .heart-pulse {
+            animation: heartPulse 0.3s ease-in-out;
+        }
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Shake animation for surprise */
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        /* Toast notification */
+        .toast {
+            animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 2.7s forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center relative selection:bg-cyan-500 selection:text-black">
+
+    <div id="bubble-container" class="fixed inset-0 pointer-events-none w-full h-full overflow-hidden"></div>
+
+    <!-- Toast Notification -->
+    <div x-data="{ show: false, message: '' }"
+         x-on:toast.window="show = true; message = $event.detail; setTimeout(() => show = false, 3000)"
+         x-show="show"
+         x-cloak
+         class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50">
+        <div class="toast glass-panel px-6 py-3 rounded-lg border border-cyan-500/50">
+            <p class="mono text-sm text-cyan-400" x-text="message"></p>
+        </div>
+    </div>
+
+    <div x-data="tonicApp()" x-init="init()" class="relative z-10 w-full max-w-3xl px-6 pt-16 pb-10 flex flex-col items-center">
+
+        <header class="text-center mb-12 fade-in">
+            <div class="mb-4">
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tighter glow-text mb-3">
+                    TONICWATER<span class="gradient-text">.IO</span>
+                </h1>
+            </div>
+            <p class="mono text-cyan-400 text-sm md:text-base opacity-80 mb-4">
+                > INITIATING PAIRING PROTOCOL...
+            </p>
+            <p class="text-gray-400 text-sm max-w-lg mx-auto">
+                The perfect gin & tonic pairing algorithm. Choose your spirit, discover your match.
+            </p>
+        </header>
+
+        <!-- Mood Picker Section -->
+        <div x-show="!selected && search === ''" class="w-full mb-8 fade-in">
+            <p class="mono text-xs text-gray-500 text-center mb-4">I'M IN THE MOOD FOR SOMETHING...</p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <template x-for="mood in moods">
+                    <button
+                        @click="selectMood(mood)"
+                        class="glass-panel px-4 py-2 rounded-full text-sm hover:bg-cyan-900/30 transition-all hover:border-cyan-500/50 flex items-center gap-2"
+                    >
+                        <span x-text="mood.emoji"></span>
+                        <span x-text="mood.name"></span>
+                    </button>
+                </template>
+                <button
+                    @click="surpriseMe()"
+                    class="glass-panel px-4 py-2 rounded-full text-sm bg-gradient-to-r from-pink-500/20 to-cyan-500/20 hover:from-pink-500/40 hover:to-cyan-500/40 transition-all border-pink-500/30 flex items-center gap-2"
+                    :class="{ 'shake': isShaking }"
+                >
+                    <span>🎲</span>
+                    <span>Surprise Me!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="w-full relative group mb-8 fade-in">
+            <div class="absolute -inset-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-pink-600 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+            <input
+                type="text"
+                x-model="search"
+                @input="handleSearch"
+                placeholder="Search gin brand or profile (e.g., Monkey 47, Citrus, Floral)"
+                class="relative w-full bg-[#0a0a1a] text-white border border-gray-700 rounded-xl p-6 text-lg mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all placeholder-gray-600"
+            >
+        </div>
+
+        <!-- Recently Viewed & Favorites Toggle -->
+        <div x-show="!selected && search === ''" class="w-full flex justify-center gap-4 mb-6 fade-in">
+            <button
+                @click="showFavorites = !showFavorites; showRecent = false"
+                class="mono text-xs px-4 py-2 rounded-lg transition-all"
+                :class="showFavorites ? 'bg-pink-500/20 text-pink-400 border border-pink-500/50' : 'text-gray-500 hover:text-gray-300'"
+            >
+                ❤️ Favorites (<span x-text="favorites.length"></span>)
+            </button>
+            <button
+                @click="showRecent = !showRecent; showFavorites = false"
+                class="mono text-xs px-4 py-2 rounded-lg transition-all"
+                :class="showRecent ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'text-gray-500 hover:text-gray-300'"
+            >
+                🕐 Recent (<span x-text="recentlyViewed.length"></span>)
+            </button>
+        </div>
+
+        <!-- Favorites List -->
+        <div x-show="showFavorites && favorites.length > 0 && !selected" class="w-full glass-panel rounded-xl overflow-hidden mb-6 fade-in">
+            <div class="p-3 border-b border-white/10 flex justify-between items-center">
+                <span class="mono text-xs text-pink-400">❤️ YOUR FAVORITES</span>
+                <button @click="clearFavorites()" class="mono text-xs text-gray-500 hover:text-red-400">Clear All</button>
+            </div>
+            <template x-for="gin in favorites">
+                <div
+                    @click="selectGinByName(gin)"
+                    class="p-4 border-b border-white/5 hover:bg-pink-900/20 cursor-pointer flex justify-between items-center group transition-all"
+                >
+                    <span class="font-bold" x-text="gin"></span>
+                    <span class="mono text-xs text-gray-500 group-hover:text-pink-400">VIEW >></span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Recently Viewed List -->
+        <div x-show="showRecent && recentlyViewed.length > 0 && !selected" class="w-full glass-panel rounded-xl overflow-hidden mb-6 fade-in">
+            <div class="p-3 border-b border-white/10 flex justify-between items-center">
+                <span class="mono text-xs text-cyan-400">🕐 RECENTLY VIEWED</span>
+                <button @click="clearHistory()" class="mono text-xs text-gray-500 hover:text-red-400">Clear</button>
+            </div>
+            <template x-for="gin in recentlyViewed">
+                <div
+                    @click="selectGinByName(gin)"
+                    class="p-4 border-b border-white/5 hover:bg-cyan-900/20 cursor-pointer flex justify-between items-center group transition-all"
+                >
+                    <span class="font-bold" x-text="gin"></span>
+                    <span class="mono text-xs text-gray-500 group-hover:text-cyan-400">VIEW >></span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Loading State -->
+        <div x-show="loading" class="w-full flex justify-center py-8">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="w-full glass-panel rounded-xl p-6 border-red-500/50 text-center mb-8">
+            <p class="text-red-400 mono text-sm" x-text="error"></p>
+        </div>
+
+        <!-- Category Quick Select -->
+        <div x-show="search === '' && !selected && !loading && !showFavorites && !showRecent" class="w-full grid grid-cols-2 md:grid-cols-4 gap-4 fade-in">
+            <template x-for="cat in categories">
+                <button
+                    @click="search = cat; handleSearch()"
+                    class="glass-card p-6 rounded-xl hover:bg-white/10 transition-all text-sm mono text-gray-300 hover:text-cyan-300 text-center group"
+                >
+                    <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">🍸</div>
+                    <span x-text="cat"></span>
+                </button>
+            </template>
+        </div>
+
+        <!-- Search Results -->
+        <div x-show="search !== '' && !selected && !loading" class="w-full glass-panel rounded-xl overflow-hidden max-h-[500px] overflow-y-auto fade-in">
+            <template x-for="gin in filteredGins">
+                <div
+                    @click="selectGin(gin)"
+                    class="p-5 border-b border-white/5 hover:bg-cyan-900/30 cursor-pointer flex justify-between items-center group transition-all"
+                >
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-lg" x-text="gin.name"></span>
+                            <span x-show="isFavorite(gin.name)" class="text-pink-500">❤️</span>
+                        </div>
+                        <span class="text-sm text-gray-400 mono" x-text="gin.profile"></span>
+                    </div>
+                    <span class="mono text-xs text-gray-500 group-hover:text-cyan-400 transition-colors">
+                        SELECT >>
+                    </span>
+                </div>
+            </template>
+            <div x-show="filteredGins.length === 0 && !loading" class="p-12 text-center text-gray-500 mono">
+                <div class="text-4xl mb-4">🔍</div>
+                <p class="mb-2">NO MATCH FOUND</p>
+                <p class="text-xs">Try: "CITRUS", "FLORAL", "DRY", "SPICY"</p>
+            </div>
+        </div>
+
+        <!-- Selected Gin Details -->
+        <div
+            x-show="selected"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform scale-95"
+            class="w-full fade-in"
+        >
+            <div class="glass-card rounded-2xl p-1 border-t border-cyan-500/50 glow-border">
+                <div class="bg-[#050510]/90 rounded-2xl p-8 md:p-10 relative">
+                    <!-- Action buttons -->
+                    <div class="absolute top-6 right-6 flex gap-2">
+                        <button
+                            @click="toggleFavorite(selected.name)"
+                            class="text-2xl transition-transform hover:scale-110"
+                            :class="{ 'heart-pulse': justFavorited }"
+                        >
+                            <span x-show="isFavorite(selected.name)">❤️</span>
+                            <span x-show="!isFavorite(selected.name)">🤍</span>
+                        </button>
+                        <button
+                            @click="shareGin()"
+                            class="text-xl hover:scale-110 transition-transform"
+                            title="Share this pairing"
+                        >
+                            📤
+                        </button>
+                        <button
+                            @click="reset()"
+                            class="text-gray-500 hover:text-white mono text-xs transition-colors bg-white/5 px-4 py-2 rounded-lg hover:bg-white/10"
+                        >
+                            [ RESET ]
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col items-center text-center space-y-8">
+                        <!-- Header -->
+                        <div class="space-y-4">
+                            <p class="mono text-cyan-500 text-xs tracking-widest">TARGET ACQUIRED</p>
+                            <h2 class="text-4xl md:text-6xl font-bold text-white glow-text" x-text="selected.name"></h2>
+                            <p class="text-gray-400 text-lg italic" x-text="selected.profile"></p>
+                        </div>
+
+                        <div class="w-full h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+
+                        <!-- Pairing Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="glass-card p-6 rounded-xl bg-blue-900/10 border-blue-500/30">
+                                <div class="text-4xl mb-3">🥤</div>
+                                <p class="mono text-blue-400 text-xs mb-2 tracking-wider">TONIC WATER</p>
+                                <p class="text-2xl font-bold text-blue-100 mb-4" x-text="selected.tonic"></p>
+                                <a
+                                    :href="selected.amazonLink"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-2 px-4 rounded-lg transition-all transform hover:scale-105 shadow-lg text-sm"
+                                >
+                                    <span>🛒</span>
+                                    <span>Buy on Amazon</span>
+                                </a>
+                            </div>
+                            <div class="glass-card p-6 rounded-xl bg-green-900/10 border-green-500/30">
+                                <div class="text-4xl mb-3">🌿</div>
+                                <p class="mono text-green-400 text-xs mb-2 tracking-wider">GARNISH</p>
+                                <p class="text-2xl font-bold text-green-100" x-text="selected.garnish"></p>
+                            </div>
+                        </div>
+
+                        <!-- Cocktail Recipe Section -->
+                        <div class="w-full glass-panel p-6 rounded-xl">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-2xl">🍸</span>
+                                <p class="mono text-xs text-purple-400 tracking-wider">PERFECT G&T RECIPE</p>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                <div class="p-3 rounded-lg bg-white/5">
+                                    <p class="text-2xl mb-1">🧊</p>
+                                    <p class="mono text-xs text-gray-400">ICE</p>
+                                    <p class="text-sm font-bold" x-text="selected.recipe?.ice || 'Large cubes'"></p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-white/5">
+                                    <p class="text-2xl mb-1">⚖️</p>
+                                    <p class="mono text-xs text-gray-400">RATIO</p>
+                                    <p class="text-sm font-bold" x-text="selected.recipe?.ratio || '1:2'"></p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-white/5">
+                                    <p class="text-2xl mb-1">🥃</p>
+                                    <p class="mono text-xs text-gray-400">GLASS</p>
+                                    <p class="text-sm font-bold" x-text="selected.recipe?.glass || 'Copa'"></p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-white/5">
+                                    <p class="text-2xl mb-1">🌡️</p>
+                                    <p class="mono text-xs text-gray-400">TEMP</p>
+                                    <p class="text-sm font-bold" x-text="selected.recipe?.temp || 'Ice cold'"></p>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 rounded-lg bg-white/5 text-left">
+                                <p class="mono text-xs text-gray-400 mb-2">PREPARATION:</p>
+                                <p class="text-sm text-gray-300" x-text="selected.recipe?.instructions || 'Fill glass with ice. Add gin, then pour tonic slowly down a bar spoon. Gently stir once. Add garnish.'"></p>
+                            </div>
+                        </div>
+
+                        <!-- Why Section -->
+                        <div class="w-full glass-panel p-6 rounded-xl text-left border-l-4 border-cyan-500">
+                            <div class="flex items-start gap-3">
+                                <div class="text-2xl">💡</div>
+                                <div class="flex-1">
+                                    <p class="mono text-xs text-gray-400 mb-2 tracking-wider">ALGORITHM REASONING:</p>
+                                    <p class="text-gray-300 text-base leading-relaxed" x-text="selected.why"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Link -->
+                        <div x-show="shareUrl" class="w-full glass-panel p-4 rounded-xl text-center">
+                            <p class="mono text-xs text-gray-400 mb-2">SHAREABLE LINK:</p>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    :value="shareUrl"
+                                    readonly
+                                    class="flex-1 bg-black/30 border border-gray-700 rounded-lg p-2 text-sm mono text-cyan-400"
+                                >
+                                <button
+                                    @click="copyShareLink()"
+                                    class="glass-panel px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all mono text-xs"
+                                >
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="absolute bottom-4 text-center w-full mono text-[10px] text-gray-600">
+        SYSTEM: TONICWATER.IO // VER 3.0 // POWERED BY THE ALGORITHM
+    </footer>
+
+    <script>
+        // Enhanced Bubble Generator
+        const container = document.getElementById('bubble-container');
+        for(let i=0; i<40; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            b.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 30 + 10;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.animationDuration = Math.random() * 10 + 15 + 's';
+            b.style.animationDelay = Math.random() * 10 + 's';
+            container.appendChild(b);
+        }
+
+        function tonicApp() {
+            return {
+                search: '',
+                selected: null,
+                categories: ['Citrus', 'Floral', 'Spicy', 'Dry'],
+                filteredGins: [],
+                loading: false,
+                error: null,
+                favorites: [],
+                recentlyViewed: [],
+                showFavorites: false,
+                showRecent: false,
+                shareUrl: '',
+                justFavorited: false,
+                isShaking: false,
+                allGins: [],
+                moods: [
+                    { name: 'Refreshing', emoji: '🌊', profiles: ['Cucumber', 'Citrus', 'Light'] },
+                    { name: 'Bold', emoji: '🔥', profiles: ['Spiced', 'Juniper', 'Dry'] },
+                    { name: 'Sweet', emoji: '🍯', profiles: ['Honey', 'Berry', 'Floral'] },
+                    { name: 'Herbal', emoji: '🌿', profiles: ['Herbal', 'Botanical', 'Forest'] },
+                    { name: 'Exotic', emoji: '✨', profiles: ['Japanese', 'Tropical', 'Oriental'] }
+                ],
+
+                async init() {
+                    // Load favorites from localStorage
+                    const savedFavorites = localStorage.getItem('tonicwater_favorites');
+                    if (savedFavorites) {
+                        this.favorites = JSON.parse(savedFavorites);
+                    }
+
+                    // Load recently viewed from localStorage
+                    const savedRecent = localStorage.getItem('tonicwater_recent');
+                    if (savedRecent) {
+                        this.recentlyViewed = JSON.parse(savedRecent);
+                    }
+
+                    // Load categories from API
+                    try {
+                        const response = await fetch('/api/categories');
+                        if (response.ok) {
+                            this.categories = await response.json();
+                        }
+                    } catch (e) {
+                        console.error('Failed to load categories:', e);
+                    }
+
+                    // Load all gins for surprise me feature
+                    try {
+                        const response = await fetch('/api/gins');
+                        if (response.ok) {
+                            this.allGins = await response.json();
+                        }
+                    } catch (e) {
+                        console.error('Failed to load gins:', e);
+                    }
+
+                    // Check for shared gin in URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const sharedGin = urlParams.get('gin');
+                    if (sharedGin) {
+                        this.selectGinByName(decodeURIComponent(sharedGin));
+                    }
+                },
+
+                async handleSearch() {
+                    if (this.search === '') {
+                        this.filteredGins = [];
+                        this.error = null;
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.error = null;
+
+                    try {
+                        const response = await fetch(`/api/gins?search=${encodeURIComponent(this.search)}`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch gins');
+                        }
+                        this.filteredGins = await response.json();
+                    } catch (e) {
+                        this.error = 'ERROR: FAILED TO RETRIEVE DATA';
+                        console.error('Search error:', e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                selectGin(gin) {
+                    this.selected = gin;
+                    this.shareUrl = '';
+                    this.addToRecentlyViewed(gin.name);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                async selectGinByName(name) {
+                    this.loading = true;
+                    try {
+                        const response = await fetch(`/api/gins/${encodeURIComponent(name)}`);
+                        if (response.ok) {
+                            const gin = await response.json();
+                            this.selectGin(gin);
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch gin:', e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                selectMood(mood) {
+                    // Search for gins matching this mood's profiles
+                    const matchingGins = this.allGins.filter(gin =>
+                        mood.profiles.some(profile =>
+                            gin.profile.toLowerCase().includes(profile.toLowerCase()) ||
+                            gin.name.toLowerCase().includes(profile.toLowerCase())
+                        )
+                    );
+
+                    if (matchingGins.length > 0) {
+                        const randomGin = matchingGins[Math.floor(Math.random() * matchingGins.length)];
+                        this.selectGin(randomGin);
+                        this.toast(`Found a ${mood.name.toLowerCase()} match!`);
+                    } else {
+                        this.search = mood.profiles[0];
+                        this.handleSearch();
+                    }
+                },
+
+                surpriseMe() {
+                    this.isShaking = true;
+                    setTimeout(() => this.isShaking = false, 500);
+
+                    if (this.allGins.length > 0) {
+                        const randomGin = this.allGins[Math.floor(Math.random() * this.allGins.length)];
+                        setTimeout(() => {
+                            this.selectGin(randomGin);
+                            this.toast('🎲 Random selection!');
+                        }, 300);
+                    }
+                },
+
+                reset() {
+                    this.selected = null;
+                    this.search = '';
+                    this.filteredGins = [];
+                    this.error = null;
+                    this.shareUrl = '';
+                    this.showFavorites = false;
+                    this.showRecent = false;
+                    // Clear URL params
+                    window.history.replaceState({}, '', window.location.pathname);
+                },
+
+                // Favorites management
+                toggleFavorite(ginName) {
+                    const index = this.favorites.indexOf(ginName);
+                    if (index > -1) {
+                        this.favorites.splice(index, 1);
+                        this.toast('Removed from favorites');
+                    } else {
+                        this.favorites.unshift(ginName);
+                        this.justFavorited = true;
+                        setTimeout(() => this.justFavorited = false, 300);
+                        this.toast('Added to favorites ❤️');
+                    }
+                    localStorage.setItem('tonicwater_favorites', JSON.stringify(this.favorites));
+                },
+
+                isFavorite(ginName) {
+                    return this.favorites.includes(ginName);
+                },
+
+                clearFavorites() {
+                    this.favorites = [];
+                    localStorage.removeItem('tonicwater_favorites');
+                    this.showFavorites = false;
+                    this.toast('Favorites cleared');
+                },
+
+                // Recently viewed management
+                addToRecentlyViewed(ginName) {
+                    // Remove if already exists
+                    const index = this.recentlyViewed.indexOf(ginName);
+                    if (index > -1) {
+                        this.recentlyViewed.splice(index, 1);
+                    }
+                    // Add to front
+                    this.recentlyViewed.unshift(ginName);
+                    // Keep only last 10
+                    this.recentlyViewed = this.recentlyViewed.slice(0, 10);
+                    localStorage.setItem('tonicwater_recent', JSON.stringify(this.recentlyViewed));
+                },
+
+                clearHistory() {
+                    this.recentlyViewed = [];
+                    localStorage.removeItem('tonicwater_recent');
+                    this.showRecent = false;
+                    this.toast('History cleared');
+                },
+
+                // Sharing
+                shareGin() {
+                    const url = `${window.location.origin}${window.location.pathname}?gin=${encodeURIComponent(this.selected.name)}`;
+                    this.shareUrl = url;
+                },
+
+                async copyShareLink() {
+                    try {
+                        await navigator.clipboard.writeText(this.shareUrl);
+                        this.toast('Link copied to clipboard!');
+                    } catch (e) {
+                        console.error('Failed to copy:', e);
+                    }
+                },
+
+                toast(message) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: message }));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
