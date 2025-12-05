@@ -819,7 +819,8 @@ export class ArticlesDO implements DurableObject {
       // Generate article with Claude Sonnet (this can take 20-30 seconds)
       const articleContent = await generateArticleWithClaude(openrouterApiKey, topic);
 
-      // Create the article
+      // Create the article (auto-publish)
+      const now = new Date().toISOString();
       const article: Article = {
         id: crypto.randomUUID(),
         slug: slugify(articleContent.title),
@@ -831,8 +832,9 @@ export class ArticlesDO implements DurableObject {
         schemaMarkup: articleContent.schemaMarkup,
         imageUrl: '/images/default-gin-tonic.jpg',
         imageAlt: `${articleContent.title} - Gin and Tonic Guide`,
-        status: 'draft',
-        createdAt: new Date().toISOString(),
+        status: 'published',
+        createdAt: now,
+        publishedAt: now,
       };
 
       // Save article
