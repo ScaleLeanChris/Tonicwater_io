@@ -344,7 +344,7 @@ Example: {"title":"Your Title Here","metaDescription":"Compelling 150-160 char d
       'X-Title': 'TonicWater SEO Agent',
     },
     body: JSON.stringify({
-      model: 'anthropic/claude-sonnet-4',  // Using Sonnet for higher quality
+      model: 'x-ai/grok-4.1-fast',  // Using Grok 4.1 Fast for article generation
       max_tokens: 8192,
       messages: [
         { role: 'system', content: systemPrompt },
