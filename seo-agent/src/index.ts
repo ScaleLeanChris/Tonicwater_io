@@ -282,6 +282,7 @@ async function handleGenerateArticle(env: Env, ctx: ExecutionContext, topic: str
       taskId,
       topic,
       openrouterApiKey: env.OPENROUTER_API_KEY,
+      geminiApiKey: env.GEMINI_API_KEY,
     }),
   });
 
@@ -300,6 +301,7 @@ async function generateDailyArticle(env: Env): Promise<void> {
     body: JSON.stringify({
       taskId,
       openrouterApiKey: env.OPENROUTER_API_KEY,
+      geminiApiKey: env.GEMINI_API_KEY,
     }),
   });
 }
@@ -416,7 +418,7 @@ interface ImageResult {
   imageAlt: string;
 }
 
-async function generateImageWithNanoBanana(env: Env, title: string, keyword: string): Promise<ImageResult> {
+async function generateImageWithNanoBanana(geminiApiKey: string, title: string, keyword: string): Promise<ImageResult> {
   const imagePrompt = `A beautiful, professional photograph of a gin and tonic cocktail for an article titled "${title}".
 
 The image should feature:
@@ -430,31 +432,28 @@ The image should feature:
 Style: Editorial food photography, magazine quality, warm ambient lighting`;
 
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent', {
+    // Use Imagen 3 model for high-quality image generation
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': env.GEMINI_API_KEY,
+        'x-goog-api-key': geminiApiKey,
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: imagePrompt,
-          }],
+        instances: [{
+          prompt: imagePrompt,
         }],
-        generationConfig: {
-          responseModalities: ['image', 'text'],
-          imageDimensions: {
-            width: 1024,
-            height: 1024,
-          },
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: '16:9',
+          personGeneration: 'dont_allow',
         },
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Gemini API error:', error);
+      console.error('Imagen API error:', error);
       // Return placeholder if image generation fails
       return {
         imageUrl: '/images/default-gin-tonic.jpg',
@@ -463,21 +462,18 @@ Style: Editorial food photography, magazine quality, warm ambient lighting`;
     }
 
     const result = await response.json() as {
-      candidates: Array<{
-        content: {
-          parts: Array<{
-            inlineData?: { mimeType: string; data: string };
-            text?: string;
-          }>;
-        };
+      predictions: Array<{
+        bytesBase64Encoded: string;
+        mimeType: string;
       }>;
     };
 
-    const imagePart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+    const prediction = result.predictions?.[0];
 
-    if (imagePart?.inlineData) {
+    if (prediction?.bytesBase64Encoded) {
       // Store image as base64 data URL (in production, upload to R2 or similar)
-      const imageUrl = `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
+      const mimeType = prediction.mimeType || 'image/png';
+      const imageUrl = `data:${mimeType};base64,${prediction.bytesBase64Encoded}`;
       return {
         imageUrl,
         imageAlt: `${title} - Premium Gin and Tonic Pairing Guide`,
@@ -770,6 +766,7 @@ interface PendingGeneration {
   taskId: string;
   topic?: string;
   openrouterApiKey: string;
+  geminiApiKey: string;
 }
 
 export class ArticlesDO implements DurableObject {
@@ -804,7 +801,7 @@ export class ArticlesDO implements DurableObject {
       return;
     }
 
-    const { taskId, topic, openrouterApiKey } = this.pendingGeneration;
+    const { taskId, topic, openrouterApiKey, geminiApiKey } = this.pendingGeneration;
     console.log(`Alarm: Starting article generation for task ${taskId}`);
 
     try {
@@ -816,8 +813,13 @@ export class ArticlesDO implements DurableObject {
         await this.state.storage.put('tasks', Array.from(this.tasks.values()));
       }
 
-      // Generate article with Claude Sonnet (this can take 20-30 seconds)
+      // Generate article with Grok (this can take 20-30 seconds)
       const articleContent = await generateArticleWithClaude(openrouterApiKey, topic);
+
+      // Generate image with Nano Banana (Gemini)
+      console.log('Generating image with Nano Banana...');
+      const imageResult = await generateImageWithNanoBanana(geminiApiKey, articleContent.title, articleContent.primaryKeyword);
+      console.log('Image generated:', imageResult.imageUrl.substring(0, 50) + '...');
 
       // Create the article (auto-publish)
       const now = new Date().toISOString();
@@ -830,8 +832,8 @@ export class ArticlesDO implements DurableObject {
         primaryKeyword: articleContent.primaryKeyword,
         secondaryKeywords: articleContent.secondaryKeywords,
         schemaMarkup: articleContent.schemaMarkup,
-        imageUrl: '/images/default-gin-tonic.jpg',
-        imageAlt: `${articleContent.title} - Gin and Tonic Guide`,
+        imageUrl: imageResult.imageUrl,
+        imageAlt: imageResult.imageAlt,
         status: 'published',
         createdAt: now,
         publishedAt: now,
@@ -873,7 +875,7 @@ export class ArticlesDO implements DurableObject {
 
     // POST /start-generation - trigger alarm-based generation
     if (path === '/start-generation' && request.method === 'POST') {
-      const body = await request.json() as { taskId: string; topic?: string; openrouterApiKey: string };
+      const body = await request.json() as { taskId: string; topic?: string; openrouterApiKey: string; geminiApiKey: string };
 
       // Create task record
       const task: GenerationTask = {
@@ -890,6 +892,7 @@ export class ArticlesDO implements DurableObject {
         taskId: body.taskId,
         topic: body.topic,
         openrouterApiKey: body.openrouterApiKey,
+        geminiApiKey: body.geminiApiKey,
       };
       await this.state.storage.put('pendingGeneration', this.pendingGeneration);
 
