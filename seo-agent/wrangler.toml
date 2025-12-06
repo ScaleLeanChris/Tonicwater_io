@@ -25,6 +25,8 @@ id = "e94832dab5a8450ea9971c0fbf198f02"
 ENVIRONMENT = "production"
 
 # Secrets (set via wrangler secret put):
-# - OPENROUTER_API_KEY
-# - GEMINI_API_KEY
-# - ADMIN_PASSWORD
+# - OPENROUTER_API_KEY     - For Grok article generation via OpenRouter
+# - GEMINI_API_KEY         - For Imagen 3 image generation
+# - ADMIN_PASSWORD         - Admin dashboard authentication
+# - DATAFORSEO_LOGIN       - DataForSEO account login (optional, for keyword research)
+# - DATAFORSEO_PASSWORD    - DataForSEO account password (optional, for keyword research)

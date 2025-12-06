@@ -6,6 +6,8 @@ interface Env {
   ARTICLE_CACHE: KVNamespace;
   OPENROUTER_API_KEY: string;
   GEMINI_API_KEY: string;
+  DATAFORSEO_LOGIN: string;
+  DATAFORSEO_PASSWORD: string;
   ADMIN_PASSWORD: string;
   ENVIRONMENT: string;
 }
@@ -283,6 +285,8 @@ async function handleGenerateArticle(env: Env, ctx: ExecutionContext, topic: str
       topic,
       openrouterApiKey: env.OPENROUTER_API_KEY,
       geminiApiKey: env.GEMINI_API_KEY,
+      dataforseoLogin: env.DATAFORSEO_LOGIN,
+      dataforseoPassword: env.DATAFORSEO_PASSWORD,
     }),
   });
 
@@ -302,6 +306,8 @@ async function generateDailyArticle(env: Env): Promise<void> {
       taskId,
       openrouterApiKey: env.OPENROUTER_API_KEY,
       geminiApiKey: env.GEMINI_API_KEY,
+      dataforseoLogin: env.DATAFORSEO_LOGIN,
+      dataforseoPassword: env.DATAFORSEO_PASSWORD,
     }),
   });
 }
@@ -408,6 +414,186 @@ Example: {"title":"Your Title Here","metaDescription":"Compelling 150-160 char d
   } catch (e) {
     throw new Error(`Failed to parse JSON: ${e}. Content: ${jsonText.substring(0, 300)}...`);
   }
+}
+
+// ============================================
+// DataForSEO Keyword Research
+// ============================================
+interface KeywordData {
+  keyword: string;
+  searchVolume: number;
+  competition: number;
+  cpc: number;
+  relatedKeywords: string[];
+}
+
+interface DataForSEOCredentials {
+  login: string;
+  password: string;
+}
+
+async function researchKeywords(
+  credentials: DataForSEOCredentials,
+  seedKeyword: string
+): Promise<KeywordData | null> {
+  if (!credentials.login || !credentials.password) {
+    console.log('DataForSEO credentials not configured, skipping keyword research');
+    return null;
+  }
+
+  const authToken = btoa(`${credentials.login}:${credentials.password}`);
+
+  try {
+    // Use DataForSEO Keywords Data API - Google Ads Search Volume
+    const response = await fetch('https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${authToken}`,
+      },
+      body: JSON.stringify([{
+        keywords: [seedKeyword],
+        location_code: 2840, // United States
+        language_code: 'en',
+      }]),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('DataForSEO API error:', error);
+      return null;
+    }
+
+    const result = await response.json() as {
+      tasks: Array<{
+        result: Array<{
+          keyword: string;
+          search_volume: number;
+          competition: number;
+          cpc: number;
+        }>;
+      }>;
+    };
+
+    const keywordResult = result.tasks?.[0]?.result?.[0];
+    if (!keywordResult) {
+      console.log('No keyword data returned from DataForSEO');
+      return null;
+    }
+
+    // Get related keywords using keyword suggestions
+    const relatedResponse = await fetch('https://api.dataforseo.com/v3/dataforseo_labs/google/related_keywords/live', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${authToken}`,
+      },
+      body: JSON.stringify([{
+        keyword: seedKeyword,
+        location_code: 2840,
+        language_code: 'en',
+        limit: 10,
+      }]),
+    });
+
+    let relatedKeywords: string[] = [];
+    if (relatedResponse.ok) {
+      const relatedResult = await relatedResponse.json() as {
+        tasks: Array<{
+          result: Array<{
+            items: Array<{
+              keyword_data: { keyword: string };
+            }>;
+          }>;
+        }>;
+      };
+      relatedKeywords = relatedResult.tasks?.[0]?.result?.[0]?.items
+        ?.slice(0, 5)
+        ?.map(item => item.keyword_data?.keyword)
+        ?.filter(Boolean) || [];
+    }
+
+    return {
+      keyword: keywordResult.keyword,
+      searchVolume: keywordResult.search_volume || 0,
+      competition: keywordResult.competition || 0,
+      cpc: keywordResult.cpc || 0,
+      relatedKeywords,
+    };
+  } catch (error) {
+    console.error('DataForSEO request failed:', error);
+    return null;
+  }
+}
+
+// Get trending gin & tonic topics for article generation
+async function getTrendingTopics(credentials: DataForSEOCredentials): Promise<string[]> {
+  if (!credentials.login || !credentials.password) {
+    return getDefaultTopics();
+  }
+
+  const authToken = btoa(`${credentials.login}:${credentials.password}`);
+
+  try {
+    // Use DataForSEO to find trending related keywords
+    const response = await fetch('https://api.dataforseo.com/v3/dataforseo_labs/google/keyword_suggestions/live', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${authToken}`,
+      },
+      body: JSON.stringify([{
+        keyword: 'gin and tonic',
+        location_code: 2840,
+        language_code: 'en',
+        limit: 20,
+        filters: [
+          ['keyword_info.search_volume', '>', 100],
+        ],
+        order_by: ['keyword_info.search_volume,desc'],
+      }]),
+    });
+
+    if (!response.ok) {
+      console.error('DataForSEO trending topics error:', await response.text());
+      return getDefaultTopics();
+    }
+
+    const result = await response.json() as {
+      tasks: Array<{
+        result: Array<{
+          items: Array<{
+            keyword: string;
+            keyword_info: { search_volume: number };
+          }>;
+        }>;
+      }>;
+    };
+
+    const topics = result.tasks?.[0]?.result?.[0]?.items
+      ?.map(item => item.keyword)
+      ?.filter(Boolean) || [];
+
+    return topics.length > 0 ? topics : getDefaultTopics();
+  } catch (error) {
+    console.error('Failed to get trending topics:', error);
+    return getDefaultTopics();
+  }
+}
+
+function getDefaultTopics(): string[] {
+  return [
+    'best gin for gin and tonic',
+    'fever tree tonic water review',
+    'hendricks gin cocktails',
+    'summer gin cocktails',
+    'botanical gin guide',
+    'gin and tonic garnishes',
+    'premium tonic water comparison',
+    'gin tasting notes',
+    'craft gin brands',
+    'gin cocktail recipes',
+  ];
 }
 
 // ============================================
@@ -767,6 +953,8 @@ interface PendingGeneration {
   topic?: string;
   openrouterApiKey: string;
   geminiApiKey: string;
+  dataforseoLogin?: string;
+  dataforseoPassword?: string;
 }
 
 export class ArticlesDO implements DurableObject {
@@ -801,7 +989,7 @@ export class ArticlesDO implements DurableObject {
       return;
     }
 
-    const { taskId, topic, openrouterApiKey, geminiApiKey } = this.pendingGeneration;
+    const { taskId, topic, openrouterApiKey, geminiApiKey, dataforseoLogin, dataforseoPassword } = this.pendingGeneration;
     console.log(`Alarm: Starting article generation for task ${taskId}`);
 
     try {
@@ -813,8 +1001,30 @@ export class ArticlesDO implements DurableObject {
         await this.state.storage.put('tasks', Array.from(this.tasks.values()));
       }
 
+      // Determine topic using DataForSEO if no topic provided
+      let articleTopic = topic;
+      const credentials: DataForSEOCredentials = {
+        login: dataforseoLogin || '',
+        password: dataforseoPassword || '',
+      };
+
+      if (!articleTopic) {
+        console.log('No topic provided, using DataForSEO for topic discovery...');
+        const trendingTopics = await getTrendingTopics(credentials);
+        // Pick a random topic from the list to add variety
+        articleTopic = trendingTopics[Math.floor(Math.random() * trendingTopics.length)];
+        console.log(`Selected topic from DataForSEO: ${articleTopic}`);
+      }
+
+      // Research keywords for better SEO (if DataForSEO is configured)
+      const keywordData = await researchKeywords(credentials, articleTopic);
+      if (keywordData) {
+        console.log(`Keyword data: volume=${keywordData.searchVolume}, competition=${keywordData.competition}, cpc=$${keywordData.cpc}`);
+        console.log(`Related keywords: ${keywordData.relatedKeywords.join(', ')}`);
+      }
+
       // Generate article with Grok (this can take 20-30 seconds)
-      const articleContent = await generateArticleWithClaude(openrouterApiKey, topic);
+      const articleContent = await generateArticleWithClaude(openrouterApiKey, articleTopic);
 
       // Generate image with Nano Banana (Gemini)
       console.log('Generating image with Nano Banana...');
@@ -875,7 +1085,14 @@ export class ArticlesDO implements DurableObject {
 
     // POST /start-generation - trigger alarm-based generation
     if (path === '/start-generation' && request.method === 'POST') {
-      const body = await request.json() as { taskId: string; topic?: string; openrouterApiKey: string; geminiApiKey: string };
+      const body = await request.json() as {
+        taskId: string;
+        topic?: string;
+        openrouterApiKey: string;
+        geminiApiKey: string;
+        dataforseoLogin?: string;
+        dataforseoPassword?: string;
+      };
 
       // Create task record
       const task: GenerationTask = {
@@ -893,6 +1110,8 @@ export class ArticlesDO implements DurableObject {
         topic: body.topic,
         openrouterApiKey: body.openrouterApiKey,
         geminiApiKey: body.geminiApiKey,
+        dataforseoLogin: body.dataforseoLogin,
+        dataforseoPassword: body.dataforseoPassword,
       };
       await this.state.storage.put('pendingGeneration', this.pendingGeneration);
 

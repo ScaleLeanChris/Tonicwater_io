@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Tonic Waters & Gins 2025 | TonicWater.io Shopping Guide</title>
+    <meta name="description" content="Expert-curated guide to the best tonic waters and premium gins for the perfect G&T. Featuring Fever-Tree, Q Mixers, Hendrick's, and more with detailed reviews.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff006e;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #050510 0%, #0a0a2e 50%, #050510 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 243, 255, 0.2), rgba(0, 243, 255, 0.05));
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise 15s infinite ease-in;
+            z-index: 0;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-120vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 243, 255, 0.5);
+            box-shadow: 0 12px 48px 0 rgba(0, 243, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5),
+                         0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #00f3ff 0%, #ff006e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rating-star {
+            color: #fbbf24;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ff006e 0%, #ff4d94 100%);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .amazon-btn {
+            background: linear-gradient(135deg, #ff9900 0%, #ffad33 100%);
+            transition: all 0.2s ease;
+        }
+        .amazon-btn:hover {
+            background: linear-gradient(135deg, #e68a00 0%, #ff9900 100%);
+            transform: scale(1.02);
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.3); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 243, 255, 0.5); }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="text-white min-h-screen relative selection:bg-cyan-500 selection:text-black">
+
+    <div id="bubble-container" class="fixed inset-0 pointer-events-none w-full h-full overflow-hidden"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <span class="text-2xl">🍸</span>
+                <span class="font-bold text-lg glow-text">TONICWATER.IO</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="/" class="text-gray-400 text-sm hover:text-cyan-400 transition-colors">Pairing Tool</a>
+                <a href="/articles" class="text-gray-400 text-sm hover:text-cyan-400 transition-colors">Guides</a>
+                <a href="/shop" class="text-cyan-400 font-medium text-sm hover:text-white transition-colors">Shop</a>
+            </div>
+        </div>
+    </nav>
+
+    <main x-data="shopApp()" class="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16">
+        <!-- Hero Section -->
+        <header class="text-center mb-16">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tighter glow-text mb-4">
+                G&T <span class="gradient-text">Shopping Guide</span>
+            </h1>
+            <p class="mono text-cyan-400 text-sm mb-4">> CURATED SELECTIONS FOR THE PERFECT COCKTAIL</p>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Expert-reviewed tonic waters and premium gins, ranked by taste, quality, and value.
+                Every product is hand-selected by our algorithm for the ultimate gin & tonic experience.
+            </p>
+        </header>
+
+        <!-- Category Tabs -->
+        <div class="flex justify-center gap-4 mb-12">
+            <button
+                @click="activeCategory = 'tonics'"
+                class="px-6 py-3 rounded-xl mono text-sm transition-all"
+                :class="activeCategory === 'tonics' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'glass-panel text-gray-400 hover:text-white'"
+            >
+                Tonic Waters
+            </button>
+            <button
+                @click="activeCategory = 'gins'"
+                class="px-6 py-3 rounded-xl mono text-sm transition-all"
+                :class="activeCategory === 'gins' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'glass-panel text-gray-400 hover:text-white'"
+            >
+                Premium Gins
+            </button>
+            <button
+                @click="activeCategory = 'accessories'"
+                class="px-6 py-3 rounded-xl mono text-sm transition-all"
+                :class="activeCategory === 'accessories' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'glass-panel text-gray-400 hover:text-white'"
+            >
+                Barware
+            </button>
+        </div>
+
+        <!-- Tonic Waters Section -->
+        <section x-show="activeCategory === 'tonics'" x-cloak class="mb-16">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-3xl">🥤</span>
+                <h2 class="text-2xl font-bold">Best Tonic Waters 2025</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="product in tonics" :key="product.name">
+                    <div class="glass-card rounded-2xl p-6 relative">
+                        <div x-show="product.badge" class="product-badge" x-text="product.badge"></div>
+
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center text-3xl">
+                                🍾
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg mb-1" x-text="product.name"></h3>
+                                <p class="text-gray-400 text-sm" x-text="product.brand"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1 mb-3">
+                            <template x-for="i in 5">
+                                <span class="rating-star" x-text="i <= product.rating ? '★' : '☆'"></span>
+                            </template>
+                            <span class="text-gray-500 text-sm ml-2" x-text="product.rating + '/5'"></span>
+                        </div>
+
+                        <p class="text-gray-300 text-sm mb-4 line-clamp-3" x-text="product.description"></p>
+
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <template x-for="tag in product.tags">
+                                <span class="px-2 py-1 bg-white/5 rounded text-xs text-gray-400" x-text="tag"></span>
+                            </template>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-cyan-400" x-text="product.price"></span>
+                            <a :href="product.amazonUrl" target="_blank" rel="noopener" class="amazon-btn px-4 py-2 rounded-lg text-black font-bold text-sm flex items-center gap-2">
+                                <span>View on Amazon</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- Gins Section -->
+        <section x-show="activeCategory === 'gins'" x-cloak class="mb-16">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-3xl">🍸</span>
+                <h2 class="text-2xl font-bold">Premium Gins</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="product in gins" :key="product.name">
+                    <div class="glass-card rounded-2xl p-6 relative">
+                        <div x-show="product.badge" class="product-badge" x-text="product.badge"></div>
+
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-3xl">
+                                🍸
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg mb-1" x-text="product.name"></h3>
+                                <p class="text-gray-400 text-sm" x-text="product.origin"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1 mb-3">
+                            <template x-for="i in 5">
+                                <span class="rating-star" x-text="i <= product.rating ? '★' : '☆'"></span>
+                            </template>
+                            <span class="text-gray-500 text-sm ml-2" x-text="product.rating + '/5'"></span>
+                        </div>
+
+                        <p class="text-gray-300 text-sm mb-4 line-clamp-3" x-text="product.description"></p>
+
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <template x-for="tag in product.tags">
+                                <span class="px-2 py-1 bg-white/5 rounded text-xs text-gray-400" x-text="tag"></span>
+                            </template>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-purple-400" x-text="product.price"></span>
+                            <a :href="product.amazonUrl" target="_blank" rel="noopener" class="amazon-btn px-4 py-2 rounded-lg text-black font-bold text-sm flex items-center gap-2">
+                                <span>View on Amazon</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- Accessories Section -->
+        <section x-show="activeCategory === 'accessories'" x-cloak class="mb-16">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-3xl">🥃</span>
+                <h2 class="text-2xl font-bold">Essential Barware</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="product in accessories" :key="product.name">
+                    <div class="glass-card rounded-2xl p-6 relative">
+                        <div x-show="product.badge" class="product-badge" x-text="product.badge"></div>
+
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-3xl" x-text="product.emoji">
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg mb-1" x-text="product.name"></h3>
+                                <p class="text-gray-400 text-sm" x-text="product.brand"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1 mb-3">
+                            <template x-for="i in 5">
+                                <span class="rating-star" x-text="i <= product.rating ? '★' : '☆'"></span>
+                            </template>
+                            <span class="text-gray-500 text-sm ml-2" x-text="product.rating + '/5'"></span>
+                        </div>
+
+                        <p class="text-gray-300 text-sm mb-4 line-clamp-3" x-text="product.description"></p>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-amber-400" x-text="product.price"></span>
+                            <a :href="product.amazonUrl" target="_blank" rel="noopener" class="amazon-btn px-4 py-2 rounded-lg text-black font-bold text-sm flex items-center gap-2">
+                                <span>View on Amazon</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- Buying Guide Section -->
+        <section class="glass-panel rounded-2xl p-8 mb-16">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span>💡</span>
+                <span>How to Choose the Right Tonic</span>
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-semibold text-cyan-400 mb-3">For Juniper-Forward Gins</h3>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Classic London Dry gins like Tanqueray and Beefeater pair best with <strong>Fever-Tree Indian Tonic</strong> or <strong>Q Tonic</strong>.
+                        The clean, crisp quinine complements the bold juniper notes without overpowering them.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-cyan-400 mb-3">For Floral & Botanical Gins</h3>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Gins like Hendrick's or The Botanist work beautifully with <strong>Fever-Tree Elderflower</strong> or
+                        <strong>Fever-Tree Mediterranean</strong>. The subtle botanicals in these tonics enhance the gin's complexity.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-cyan-400 mb-3">For Citrus-Forward Gins</h3>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Tanqueray Rangpur or citrus-heavy gins shine with <strong>Schweppes</strong> or <strong>Canada Dry</strong> for a
+                        refreshing, zesty combination. Add a wheel of lime to complete the experience.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-cyan-400 mb-3">Budget-Friendly Options</h3>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Don't underestimate <strong>Schweppes</strong> - it's been perfecting tonic since the 1870s.
+                        For a step up without breaking the bank, <strong>Canada Dry</strong> offers excellent value with crisp carbonation.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Perfect G&T Recipe -->
+        <section class="glass-card rounded-2xl p-8 border-l-4 border-cyan-500">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span>🍸</span>
+                <span>The Perfect G&T Formula</span>
+            </h2>
+            <div class="grid md:grid-cols-4 gap-6 text-center">
+                <div class="p-4 bg-white/5 rounded-xl">
+                    <div class="text-3xl mb-2">🧊</div>
+                    <div class="mono text-xs text-gray-400 mb-1">ICE</div>
+                    <div class="font-semibold">Large cubes</div>
+                    <div class="text-xs text-gray-500">Fill the glass</div>
+                </div>
+                <div class="p-4 bg-white/5 rounded-xl">
+                    <div class="text-3xl mb-2">🍸</div>
+                    <div class="mono text-xs text-gray-400 mb-1">GIN</div>
+                    <div class="font-semibold">50ml / 2oz</div>
+                    <div class="text-xs text-gray-500">Quality matters</div>
+                </div>
+                <div class="p-4 bg-white/5 rounded-xl">
+                    <div class="text-3xl mb-2">🥤</div>
+                    <div class="mono text-xs text-gray-400 mb-1">TONIC</div>
+                    <div class="font-semibold">150ml / 5oz</div>
+                    <div class="text-xs text-gray-500">1:3 ratio</div>
+                </div>
+                <div class="p-4 bg-white/5 rounded-xl">
+                    <div class="text-3xl mb-2">🍋</div>
+                    <div class="mono text-xs text-gray-400 mb-1">GARNISH</div>
+                    <div class="font-semibold">Match the gin</div>
+                    <div class="text-xs text-gray-500">Citrus or herbs</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="relative z-10 text-center w-full py-6 mono text-[10px] text-gray-600">
+        SYSTEM: TONICWATER.IO // VER 3.0 // POWERED BY THE ALGORITHM<br>
+        <span class="text-gray-700">As an Amazon Associate, we may earn from qualifying purchases.</span>
+    </footer>
+
+    <script>
+        // Bubble Generator
+        const container = document.getElementById('bubble-container');
+        for(let i=0; i<30; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            b.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 30 + 10;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.animationDuration = Math.random() * 10 + 15 + 's';
+            b.style.animationDelay = Math.random() * 10 + 's';
+            container.appendChild(b);
+        }
+
+        function shopApp() {
+            return {
+                activeCategory: 'tonics',
+
+                tonics: [
+                    {
+                        name: 'Fever-Tree Premium Indian Tonic',
+                        brand: 'Fever-Tree',
+                        rating: 5,
+                        price: '$6.99 (4-pack)',
+                        badge: "Editor's Pick",
+                        description: 'The gold standard of premium tonics. Uses natural quinine from the Congo and eight botanical flavors. Perfect balance of bitterness and sweetness.',
+                        tags: ['Premium', 'Natural Quinine', 'Low Sugar'],
+                        amazonUrl: 'https://www.amazon.com/s?k=fever+tree+indian+tonic+water'
+                    },
+                    {
+                        name: 'Q Mixers Spectacular Tonic',
+                        brand: 'Q Mixers',
+                        rating: 5,
+                        price: '$7.49 (4-pack)',
+                        badge: 'Best Value',
+                        description: 'Bold and crisp with organic agave sweetener. 60% fewer calories than regular tonic. Strong quinine presence for serious G&T lovers.',
+                        tags: ['Organic Agave', 'Low Calorie', 'Bold Quinine'],
+                        amazonUrl: 'https://www.amazon.com/s?k=q+mixers+tonic+water'
+                    },
+                    {
+                        name: 'Fever-Tree Mediterranean Tonic',
+                        brand: 'Fever-Tree',
+                        rating: 5,
+                        price: '$6.99 (4-pack)',
+                        badge: null,
+                        description: 'Features rosemary and lemon thyme botanicals. Less sweet than Indian tonic, perfect for floral and citrus gins like Hendricks.',
+                        tags: ['Botanical', 'Rosemary', 'Less Sweet'],
+                        amazonUrl: 'https://www.amazon.com/s?k=fever+tree+mediterranean+tonic'
+                    },
+                    {
+                        name: 'Fever-Tree Elderflower Tonic',
+                        brand: 'Fever-Tree',
+                        rating: 4,
+                        price: '$6.99 (4-pack)',
+                        badge: null,
+                        description: 'Delicate elderflower notes complement botanical gins beautifully. A touch sweeter with subtle floral aromatics.',
+                        tags: ['Floral', 'Elderflower', 'Sweet'],
+                        amazonUrl: 'https://www.amazon.com/s?k=fever+tree+elderflower+tonic'
+                    },
+                    {
+                        name: 'Schweppes Tonic Water',
+                        brand: 'Schweppes',
+                        rating: 4,
+                        price: '$4.99 (6-pack)',
+                        badge: 'Budget Pick',
+                        description: 'The original since 1783. Reliable, consistent, and widely available. A solid choice when premium options arent available.',
+                        tags: ['Classic', 'Budget-Friendly', 'Reliable'],
+                        amazonUrl: 'https://www.amazon.com/s?k=schweppes+tonic+water'
+                    },
+                    {
+                        name: 'Fever-Tree Naturally Light',
+                        brand: 'Fever-Tree',
+                        rating: 4,
+                        price: '$6.99 (4-pack)',
+                        badge: null,
+                        description: '58% fewer calories using fruit sugars instead of artificial sweeteners. Nearly indistinguishable from the original.',
+                        tags: ['Low Calorie', 'Natural Sweetener', 'Diet-Friendly'],
+                        amazonUrl: 'https://www.amazon.com/s?k=fever+tree+naturally+light+tonic'
+                    }
+                ],
+
+                gins: [
+                    {
+                        name: "Hendrick's Gin",
+                        origin: 'Scotland',
+                        rating: 5,
+                        price: '$34.99',
+                        badge: "Editor's Pick",
+                        description: 'Infused with cucumber and rose petals for a unique, refreshing character. Best with Mediterranean or elderflower tonics.',
+                        tags: ['Cucumber', 'Rose', 'Floral'],
+                        amazonUrl: 'https://www.amazon.com/s?k=hendricks+gin'
+                    },
+                    {
+                        name: 'Tanqueray London Dry',
+                        origin: 'England',
+                        rating: 5,
+                        price: '$24.99',
+                        badge: 'Classic',
+                        description: 'The quintessential London Dry. Four botanicals create a perfectly balanced, juniper-forward profile.',
+                        tags: ['Juniper', 'Classic', 'London Dry'],
+                        amazonUrl: 'https://www.amazon.com/s?k=tanqueray+gin'
+                    },
+                    {
+                        name: 'The Botanist Islay Dry Gin',
+                        origin: 'Scotland',
+                        rating: 5,
+                        price: '$39.99',
+                        badge: null,
+                        description: '22 hand-foraged Islay botanicals create an incredibly complex, herbal gin. Exceptional for sipping or in a G&T.',
+                        tags: ['22 Botanicals', 'Islay', 'Complex'],
+                        amazonUrl: 'https://www.amazon.com/s?k=the+botanist+gin'
+                    },
+                    {
+                        name: 'Monkey 47 Schwarzwald',
+                        origin: 'Germany',
+                        rating: 5,
+                        price: '$44.99',
+                        badge: 'Premium',
+                        description: '47 botanicals from the Black Forest. Incredibly complex with cranberry, spruce, and lingonberry notes.',
+                        tags: ['47 Botanicals', 'Black Forest', 'Ultra-Premium'],
+                        amazonUrl: 'https://www.amazon.com/s?k=monkey+47+gin'
+                    },
+                    {
+                        name: 'Bombay Sapphire',
+                        origin: 'England',
+                        rating: 4,
+                        price: '$24.99',
+                        badge: 'Best Value',
+                        description: '10 exotic botanicals vapor-infused for a bright, fresh character. The blue bottle is iconic for good reason.',
+                        tags: ['10 Botanicals', 'Vapor Infused', 'Fresh'],
+                        amazonUrl: 'https://www.amazon.com/s?k=bombay+sapphire+gin'
+                    },
+                    {
+                        name: 'Aviation American Gin',
+                        origin: 'USA',
+                        rating: 4,
+                        price: '$29.99',
+                        badge: null,
+                        description: 'Soft, floral, and less juniper-forward. Features lavender, cardamom, and sarsaparilla for a modern American style.',
+                        tags: ['Lavender', 'American', 'Smooth'],
+                        amazonUrl: 'https://www.amazon.com/s?k=aviation+gin'
+                    }
+                ],
+
+                accessories: [
+                    {
+                        name: 'Copa Gin Balloon Glasses (Set of 4)',
+                        brand: 'Viski',
+                        rating: 5,
+                        price: '$34.99',
+                        badge: 'Essential',
+                        emoji: '🥂',
+                        description: 'The Spanish copa glass is essential for G&T. Large bowl captures aromatics while the stem keeps your drink cold.',
+                        amazonUrl: 'https://www.amazon.com/s?k=copa+gin+glasses'
+                    },
+                    {
+                        name: 'Highball Glasses (Set of 6)',
+                        brand: 'Bormioli Rocco',
+                        rating: 5,
+                        price: '$24.99',
+                        badge: null,
+                        emoji: '🥃',
+                        description: 'Classic tall glasses perfect for the traditional G&T serve. Heavy base with elegant lines.',
+                        amazonUrl: 'https://www.amazon.com/s?k=highball+glasses+cocktail'
+                    },
+                    {
+                        name: 'Large Ice Cube Tray',
+                        brand: 'Tovolo',
+                        rating: 5,
+                        price: '$12.99',
+                        badge: 'Must Have',
+                        emoji: '🧊',
+                        description: '2-inch cubes melt slower, keeping your G&T cold without dilution. The secret to a perfect cocktail.',
+                        amazonUrl: 'https://www.amazon.com/s?k=large+ice+cube+tray+cocktail'
+                    },
+                    {
+                        name: 'Bar Spoon (12-inch)',
+                        brand: 'Cocktail Kingdom',
+                        rating: 4,
+                        price: '$9.99',
+                        badge: null,
+                        emoji: '🥄',
+                        description: 'Long twisted handle for proper stirring technique. Essential for pouring tonic down the spiral.',
+                        amazonUrl: 'https://www.amazon.com/s?k=bar+spoon+cocktail'
+                    },
+                    {
+                        name: 'Double Jigger Set',
+                        brand: 'OXO',
+                        rating: 4,
+                        price: '$11.99',
+                        badge: null,
+                        emoji: '🍶',
+                        description: 'Measure your gin precisely for consistent drinks. 1oz and 2oz sides with helpful markings.',
+                        amazonUrl: 'https://www.amazon.com/s?k=double+jigger+stainless'
+                    },
+                    {
+                        name: 'Citrus Zester & Channel Knife',
+                        brand: 'Microplane',
+                        rating: 4,
+                        price: '$14.99',
+                        badge: null,
+                        emoji: '🍋',
+                        description: 'Create perfect citrus twists for garnishing. Sharp blade produces beautiful, aromatic peels.',
+                        amazonUrl: 'https://www.amazon.com/s?k=citrus+zester+channel+knife'
+                    }
+                ]
+            };
+        }
+    </script>
+</body>
+</html>
