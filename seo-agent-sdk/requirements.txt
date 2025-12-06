@@ -1,0 +1,15 @@
+# Claude Agent SDK
+claude-code-sdk>=0.1.0
+
+# MCP Server Framework
+mcp>=1.0.0
+
+# HTTP Client
+httpx>=0.24.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Development
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

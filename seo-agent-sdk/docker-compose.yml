@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  seo-agent:
+    build: .
+    container_name: tonicwater-seo-agent
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATAFORSEO_LOGIN=${DATAFORSEO_LOGIN}
+      - DATAFORSEO_PASSWORD=${DATAFORSEO_PASSWORD}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ARTICLES_DIR=/app/articles_data
+    volumes:
+      - ./articles_data:/app/articles_data
+    command: ["python", "src/main.py"]
+    stdin_open: true
+    tty: true
+
+  # Scheduled article generation (daily at 9 AM)
+  seo-agent-cron:
+    build: .
+    container_name: tonicwater-seo-cron
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATAFORSEO_LOGIN=${DATAFORSEO_LOGIN}
+      - DATAFORSEO_PASSWORD=${DATAFORSEO_PASSWORD}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ARTICLES_DIR=/app/articles_data
+    volumes:
+      - ./articles_data:/app/articles_data
+    command: >
+      sh -c "while true; do
+        current_hour=$$(date +%H);
+        if [ \"$$current_hour\" = \"09\" ]; then
+          python src/main.py --batch;
+          sleep 3600;
+        fi;
+        sleep 1800;
+      done"
+    restart: unless-stopped

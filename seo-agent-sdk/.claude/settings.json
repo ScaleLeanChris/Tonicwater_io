@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "dataseo": {
+      "command": "python",
+      "args": ["src/mcp_servers/dataseo_server.py"],
+      "env": {
+        "DATAFORSEO_LOGIN": "${DATAFORSEO_LOGIN}",
+        "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+      }
+    },
+    "imagen": {
+      "command": "python",
+      "args": ["src/mcp_servers/imagen_server.py"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      }
+    },
+    "articles": {
+      "command": "python",
+      "args": ["src/mcp_servers/articles_server.py"],
+      "env": {
+        "ARTICLES_DIR": "./articles_data"
+      }
+    }
+  },
+  "permissions": {
+    "allowedTools": [
+      "mcp__dataseo__search_keywords",
+      "mcp__dataseo__get_related_keywords",
+      "mcp__dataseo__get_trending_topics",
+      "mcp__imagen__generate_image",
+      "mcp__imagen__create_image_prompt",
+      "mcp__articles__save_article",
+      "mcp__articles__get_articles",
+      "mcp__articles__get_article",
+      "mcp__articles__update_article_status",
+      "mcp__articles__delete_article"
+    ]
+  }
+}
